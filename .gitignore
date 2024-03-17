@@ -19,3 +19,9 @@
 
 # Go workspace file
 go.work
+
+# Exclude any node_modules directory on any level
+**/node_modules/*
+
+# Exclude any .vscode directory on any level
+**/.vscode/*

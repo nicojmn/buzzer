@@ -1,4 +1,4 @@
-package database
+package database 
 
 import (
 	"log"
@@ -21,8 +21,8 @@ type Team struct {
 }
 
 
-func InitDB() (*gorm.DB, error) {
-	db, err := gorm.Open(sqlite.Open("db.sqlite"), &gorm.Config{})
+func InitDB(path string) (*gorm.DB, error) {
+	db, err := gorm.Open(sqlite.Open(path), &gorm.Config{})
 	if err != nil {
 		log.Fatal(err);
 		return nil, err;
@@ -77,10 +77,12 @@ func AddTeam(db *gorm.DB, name string) (int, error) {
 	// check if there are not more then 13 teams
 	var teams []Team
 	db.Find(&teams)
-	if len(teams) >= 13 {
+	// TODO : fix number of teams bug
+	if len(teams) > 13 {
 		log.Printf("DB :there are already 13 teams")
 		return -1, errors.New("maxTeamsReached")
 	}
+
 	// check if team exists
 	query := db.Model(&Team{}).Where("name = ?", name)
 	if query.RowsAffected > 0 {
@@ -94,6 +96,7 @@ func AddTeam(db *gorm.DB, name string) (int, error) {
 		log.Fatal(result.Error)
 		return -1, result.Error
 	}
+
 	log.Printf("Team %s added", name)
 	return 0, nil
 }
@@ -112,7 +115,7 @@ func GetTeam(db *gorm.DB, name string) (Team, error) {
 	var team Team
 	result := db.Where("name = ?", name).First(&team)
 	if result.Error != nil {
-		log.Fatal(result.Error)
+		log.Println(result.Error)
 		return team, result.Error
 	}
 	return team, nil
@@ -130,7 +133,7 @@ func GetTeamID(db *gorm.DB, id int ) (Team, error) {
 
 func UpdateScore(db *gorm.DB, team Team, score int) (int, error) {
 	team.Score = score
-	result := db.Model(&team).Update("score", score)
+	result := db.Model(&team).Where("name = ?", team.Name).Update("score", score)
 	if result.Error != nil {
 		log.Fatal(result.Error)
 		return -1, result.Error

@@ -25,3 +25,9 @@ go.work
 
 # Exclude any .vscode directory on any level
 **/.vscode/*
+
+# Exclude any .idea directory on any level
+**/.idea/*
+
+# Exclude any db directory on any level
+**/*.sqlite*/*

@@ -30,4 +30,4 @@ go.work
 **/.idea/*
 
 # Exclude any db directory on any level
-**/*.sqlite*/*
+**/*.sqlite*

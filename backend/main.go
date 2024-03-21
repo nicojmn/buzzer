@@ -1,8 +1,9 @@
 package main
 
 import (
-	"buzzer/db"
-	"github.com/gofiber/fiber/v3"
+	"log"
+	"buzzer/database"
+	"github.com/gofiber/fiber/v2"
 )
 
 func main() {

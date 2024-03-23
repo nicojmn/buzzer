@@ -3,6 +3,7 @@ package database
 import (
 	"log"
 	"errors"
+	"buzzer/config"
 	"golang.org/x/crypto/bcrypt"
 	"gorm.io/gorm"
 	"gorm.io/driver/sqlite"
@@ -34,7 +35,7 @@ func InitDB(path string) (*gorm.DB, error) {
 	return db, nil
 }
 
-func ClearDB(db *gorm.DB) {
+func Clear(db *gorm.DB) {
 	db.Migrator().DropTable(&Admin{}, &Team{})
 	db.AutoMigrate(&Admin{}, &Team{})
 }
@@ -76,9 +77,16 @@ func AddAdmin(db *gorm.DB, username string, password string) (int, error) {
 func AddTeam(db *gorm.DB, name string) (int, error) {
 	// check if there are not more then 13 teams
 	var teams []Team
+	config_data, err := config.LoadConfig("config.yaml")
+
+	if err != nil {
+		log.Printf("Database : error loading config file (%s)", err);
+		return -1, err;
+	}
+
 	db.Find(&teams)
 	// TODO : fix number of teams bug
-	if len(teams) > 13 {
+	if len(teams) > config_data.Teams.MaxNumber {
 		log.Printf("DB :there are already 13 teams")
 		return -1, errors.New("maxTeamsReached")
 	}

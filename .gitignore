@@ -31,3 +31,5 @@ go.work
 
 # Exclude any db directory on any level
 **/*.sqlite*
+
+**/.env 

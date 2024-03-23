@@ -49,64 +49,64 @@ func hashPassword(password string) (string, error) {
 	return string(hash), nil
 }
 
-func AddAdmin(db *gorm.DB, username string, password string) (int, error) {
+func AddAdmin(db *gorm.DB, username string, password string) (error) {
 	// check if user exists with gorm
 	query := db.Model(&Admin{}).Where("username = ?", username)
 	if query.RowsAffected > 0 {
 		log.Printf("User %s already exists", username)
-		return -1, nil
+		return errors.New("User already exists")
 	}
 
 	// hash password
 	password, err := hashPassword(password)
 	if err != nil {
-		log.Fatal(err)
-		return -1, err
+		log.Println(err)
+		return err
 	}
 
 	// add user to db
 	result := db.Create(&Admin{Username: username, Password: password})
 	if result.Error != nil {
-		log.Fatal(result.Error)
-		return -1, result.Error
+		log.Println(result.Error)
+		return result.Error
 	}
 	log.Printf("User %s added", username)
-	return 0, nil
+	return nil
 }
 
-func AddTeam(db *gorm.DB, name string) (int, error) {
+func AddTeam(db *gorm.DB, name string) (error) {
 	// check if there are not more then 13 teams
 	var teams []Team
 	config_data, err := config.LoadConfig("config.yaml")
 
 	if err != nil {
 		log.Printf("Database : error loading config file (%s)", err);
-		return -1, err;
+		return err;
 	}
 
 	db.Find(&teams)
 	// TODO : fix number of teams bug
 	if len(teams) > config_data.Teams.MaxNumber {
 		log.Printf("DB :too many teams, maximum number allowed %d", config_data.Teams.MaxNumber)
-		return -1, errors.New("maxTeamsReached")
+		return errors.New("maxTeamsReached")
 	}
 
 	// check if team exists
 	query := db.Model(&Team{}).Where("name = ?", name)
 	if query.RowsAffected > 0 {
 		log.Printf("Team %s already exists", name)
-		return -1, errors.New("Team already exists")
+		return errors.New("Team already exists")
 	}
 
 	// add team to db
 	result := db.Create(&Team{Name: name, Score: 0})
 	if result.Error != nil {
-		log.Fatal(result.Error)
-		return -1, result.Error
+		log.Printf("Database : error in creation of user, %s", result.Error)
+		return result.Error
 	}
 
 	log.Printf("Team %s added", name)
-	return 0, nil
+	return nil
 }
 
 func GetAdmin(db *gorm.DB, username string) (Admin, error) {

@@ -4,14 +4,14 @@ import (
 	"log"
 	"errors"
 	"buzzer/config"
-	"golang.org/x/crypto/bcrypt"
+	"buzzer/hashing"
 	"gorm.io/gorm"
 	"gorm.io/driver/sqlite"
 )
 
 type Admin struct {
 	ID       int    `gorm:"primaryKey;type:int;autoIncrement:true;not null;unique"`
-	Username string `gorm:"unique;type:string;not null;unique"`
+	Username string `gorm:"unique;type:string;not null;"`
 	Password string `gorm:"type:string;not null"`
 }
 
@@ -40,25 +40,17 @@ func Clear(db *gorm.DB) {
 	db.AutoMigrate(&Admin{}, &Team{})
 }
 
-func hashPassword(password string) (string, error) {
-	hash, err := bcrypt.GenerateFromPassword([]byte(password), bcrypt.DefaultCost)
-	if err != nil {
-		log.Fatal(err)
-		return "", err
-	}
-	return string(hash), nil
-}
 
 func AddAdmin(db *gorm.DB, username string, password string) (error) {
 	// check if user exists with gorm
 	query := db.Model(&Admin{}).Where("username = ?", username)
 	if query.RowsAffected > 0 {
 		log.Printf("User %s already exists", username)
-		return errors.New("User already exists")
+		return errors.New("user already exists")
 	}
 
 	// hash password
-	password, err := hashPassword(password)
+	password, err := hashing.HashPassword(password)
 	if err != nil {
 		log.Println(err)
 		return err

@@ -146,5 +146,5 @@ func UpdateScore(db *gorm.DB, team Team, score int) (int, error) {
 		log.Fatal(result.Error)
 		return -1, result.Error
 	}
-	return 0, nil
+	return score, nil
 }

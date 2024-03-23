@@ -87,7 +87,7 @@ func AddTeam(db *gorm.DB, name string) (int, error) {
 	db.Find(&teams)
 	// TODO : fix number of teams bug
 	if len(teams) > config_data.Teams.MaxNumber {
-		log.Printf("DB :there are already 13 teams")
+		log.Printf("DB :too many teams, maximum number allowed %d", config_data.Teams.MaxNumber)
 		return -1, errors.New("maxTeamsReached")
 	}
 

@@ -7,9 +7,7 @@ import (
 )
 
 type Config struct {
-	Teams struct {
-		MaxNumber int
-	}
+	MaxTeams int `yaml:"max_teams"`
 }
 
 func LoadConfig (filename string) (*Config, error) {

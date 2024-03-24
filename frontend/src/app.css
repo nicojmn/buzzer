@@ -1,0 +1,9 @@
+@tailwind base;
+@tailwind components;
+@tailwind utilities;
+
+.nav-btn {
+    @apply bg-transparent hover:bg-black hover:p-2 text-black hover:text-white border border-gray-500 hover:border-transparent rounded;
+   /*  
+  */
+}

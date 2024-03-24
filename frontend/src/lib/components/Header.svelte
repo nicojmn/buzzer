@@ -1,58 +1,37 @@
 <script lang="ts">
-    import {
-    Styles,
-    Collapse,
-    NavbarToggler,
-    NavbarBrand,
-    Nav,
-    Navbar,
-    NavItem,
-    NavLink,
-    Dropdown,
-    DropdownToggle,
-    DropdownMenu,
-    DropdownItem
-  } from '@sveltestrap/sveltestrap';
-
+  import "/src/app.css"
   import logo_akap from '$lib/images/logo_akap.png'
-   
-    let isOpen = false;
-    
-    function handleUpdate(event) {
-        isOpen = event.detail.isOpen;
-    }
 </script>
+
 <svelte:head>
   <meta charset="utf-8" />
 	<meta name="viewport" content="width=device-width, initial-scale=1" />
   <title>N'oubliez pas les paroles !</title>
   <link rel="icon" type="image/png" href="favicon.png">
-  <!-- Bootstrap v5.3.3 -->
-  <link rel="stylesheet" href="bootstrap.min.css">
 </svelte:head>
 
-<Navbar color="light" light expand="md" container="md">
-    <NavbarBrand href="/">
-        <img src={logo_akap} alt="Akapella logo" width="10%">
-    </NavbarBrand>
-    <NavbarToggler on:click={() => (isOpen = !isOpen)} />
-    <Collapse {isOpen} navbar expand="md" on:update={handleUpdate}>
-      <Nav class="ms-auto" navbar>
-        <NavItem>
-          <NavLink href="#">Dashboard</NavLink>
-        </NavItem>
-        <NavItem>
-          <NavLink href="#">Buzzers</NavLink>
-        </NavItem>
-        <Dropdown nav inNavbar>
-          <DropdownToggle nav caret>Options</DropdownToggle>
-          <DropdownMenu end>
-            <DropdownItem>Option 1</DropdownItem>
-            <DropdownItem>Option 2</DropdownItem>
-            <DropdownItem divider />
-            <DropdownItem>Reset</DropdownItem>
-          </DropdownMenu>
-        </Dropdown>
-      </Nav>
-    </Collapse>
-</Navbar>
+<nav id="header-nav" class="flex flex-row bg-gray-500 p-6 ">
+  <div class="flex items-center flex-shrink-0 text-white mr-6">
+    <img src={logo_akap} alt="akap logo" class="fill-current h-10">
+  </div>
+  <div class="w-full flex flex-row space-x-2">
+    <div>
+      <a href="/admin" class="nav-btn">
+        Dashboard
+      </a>
+    </div>
+    <div>
+      <a href="/buzzer" class="nav-btn">
+        Buzzers
+      </a>
+    </div>
+    <div>
+      <a href="/" class="nav-btn">
+        Autre ?
+      </a>
+    </div>
+  </div>
+</nav>
+
+
+

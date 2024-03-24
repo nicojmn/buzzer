@@ -19,7 +19,7 @@ func main() {
 	app := fiber.New()
 
 	
-	app.Static("/", "../frontend/dist")
+	app.Static("/", "../frontend/build")
 	
 	db, err := database.InitDB("db.sqlite")
 	if err != nil {

@@ -1,11 +1,13 @@
 package auth
 
 import (
+	"buzzer/database"
+	"buzzer/hashing"
 	"log"
 	"os"
 	"time"
-	"buzzer/hashing"
-	"buzzer/database"
+
+	"github.com/gofiber/fiber/v2"
 	"github.com/golang-jwt/jwt"
 	"gorm.io/gorm"
 )
@@ -27,14 +29,14 @@ func Create_JWT_Token(db *gorm.DB, username string, password string) (string, er
 	// create token
 	token := jwt.NewWithClaims(jwt.SigningMethodHS256, jwt.MapClaims{
 		"username": username,
-		"exp": time.Now().Add(time.Hour).Unix(),
+		"exp": time.Now().Add(24 * time.Hour).Unix(),
 	})
 	tokenString, err := token.SignedString([]byte(os.Getenv("JWT_SECRET")))
 	if err != nil {
 		log.Println(err)
 		return "", err
 	}
-
+	
 	return tokenString, nil
 }
 
@@ -48,4 +50,17 @@ func Verify_JWT_Token(tokenString string) (bool, error) {
 	}
 
 	return token.Valid, nil
+}
+
+func IsLogged (ctx *fiber.Ctx) bool {
+	jwt := ctx.Cookies("jwt")
+	if (jwt == "") {
+		return false
+	} else {
+		verify, err := Verify_JWT_Token(jwt)
+		if (err != nil) {
+			return false
+		}
+		return verify
+	}
 }

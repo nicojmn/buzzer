@@ -16,17 +16,17 @@
   </div>
   <div class="w-full flex flex-row space-x-2">
     <div>
-      <a href="/admin" class="nav-btn">
+      <a href="/admin" class="btn-black">
         Dashboard
       </a>
     </div>
     <div>
-      <a href="/buzzer" class="nav-btn">
+      <a href="/buzzer" class="btn-black">
         Buzzers
       </a>
     </div>
     <div>
-      <a href="/" class="nav-btn">
+      <a href="/" class="btn-black">
         Autre ?
       </a>
     </div>

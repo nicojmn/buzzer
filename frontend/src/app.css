@@ -2,8 +2,15 @@
 @tailwind components;
 @tailwind utilities;
 
-.nav-btn {
+.btn-black {
     @apply bg-transparent hover:bg-black hover:p-2 text-black hover:text-white border border-gray-500 hover:border-transparent rounded;
    /*  
   */
 }
+.btn-black-login {
+    @apply bg-transparent hover:bg-black text-black hover:text-white border border-gray-500 hover:border-transparent rounded;
+   /*  
+  */
+}
+
+

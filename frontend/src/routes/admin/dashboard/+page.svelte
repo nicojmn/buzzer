@@ -1,5 +1,6 @@
 <script lang="ts">
     import GameState from "$lib/components/GameState.svelte"
+    import { formatUnixTimestamp } from "$lib/utils/convertTimestamp.js"
     import { onMount } from "svelte";
 
     let teams:any = []
@@ -9,13 +10,56 @@
     onMount(async () => {
         const response = await fetch("/admin/teams")
         teams = await response.json()
+        connect()
     })
     $: if (teams.length > 0) {
         sortedTeams = teams.sort((a: any, b: any) => b.PressedAt - a.PressedAt);
     }
 
+    function connect() {
+        const ws = new WebSocket("ws://localhost:8080/admin/ws")
+        ws.onopen = () => {
+            console.log(" ws : Connected")
+            ws.send(JSON.stringify({ type: 'discover', data: 'Hello server! Dashboard page here!'}));
+        }
+        ws.onmessage = (event) => {
+            const message = JSON.parse(event.data);
+            
+            if (message.type === 'scoreUpdate') {
+                console.log('Score update received:', message.data);
+                updateScoreUI(message.data.team_id, message.data.score);
+                ws.send(JSON.stringify({ type: 'ack', data: 'Score update received!'}));
+            }
+        }
+        ws.onclose = () => {
+            console.log("ws : Disconnected")
+        }
+
+    }
+
     function nextTeam() {
         i++
+    }
+
+    function incrementScore(teamID: number) {
+        try {
+            fetch(`/admin/teams/${teamID}/increment`, {
+            method: "POST"
+        })
+        } catch (error) {
+            console.error(error)
+        }
+    }
+
+    function updateScoreUI(teamID: number, score: number) {
+        // BUG : find why it increments the score by 2 sometimes
+        teams = teams.map((team: { ID: number; }) => {
+            if (team.ID === teamID) {
+                return { ...team, Score: score };
+            }
+            return team;
+        });
+        
     }
 
 
@@ -33,7 +77,7 @@
                 {/if}
                 <hr class="border rounded mt-2 mb-4">
                 <div class="flex justify-evenly">
-                    <button class="btn btn-outline btn-success">
+                    <button class="btn btn-outline btn-success" on:click={() => incrementScore(sortedTeams[i % sortedTeams.length].ID)}>
                         Bonne réponse
                     </button>
                     <button class="btn btn-outline btn-error" on:click={nextTeam}>
@@ -50,6 +94,7 @@
                 <tr>
                     <th>Team</th>
                     <th>Score</th>
+                    <th>Buzzer pressé </th>
                 </tr>
             </thead>
             <tbody>
@@ -57,6 +102,7 @@
                     <tr>
                         <th>{team.Name}</th>
                         <th>{team.Score}</th>
+                        <th>{formatUnixTimestamp(team.PressedAt)}</th>
                     </tr>
                 {/each}
             </tbody>

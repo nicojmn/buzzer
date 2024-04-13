@@ -4,10 +4,9 @@ import (
 	"buzzer/auth"
 
 	"github.com/gofiber/fiber/v2"
-	"gorm.io/gorm"
 )
 
-func SetupAuthRoutes(app *fiber.App, db *gorm.DB) {
+func SetupAuthRoutes(app *fiber.App) {
 
 	app.Get("/login", func(c *fiber.Ctx) error {
 		return c.SendFile("login.html")
@@ -17,7 +16,7 @@ func SetupAuthRoutes(app *fiber.App, db *gorm.DB) {
 		username := c.FormValue("username")
 		password := c.FormValue("password")
 
-		token, err := auth.Create_JWT_Token(db, username, password)
+		token, err := auth.Create_JWT_Token(username, password)
 		if err != nil {
 			return c.SendString("Authentification failed, please retry")
 		}
@@ -29,6 +28,6 @@ func SetupAuthRoutes(app *fiber.App, db *gorm.DB) {
 			Secure: true,
 		})
 
-		return c.Redirect("/admin")
+		return c.Redirect("/admin/dashboard")
 	})
 }

@@ -9,12 +9,11 @@ import (
 
 	"github.com/gofiber/fiber/v2"
 	"github.com/golang-jwt/jwt"
-	"gorm.io/gorm"
 )
 
-func Create_JWT_Token(db *gorm.DB, username string, password string) (string, error) {
+func Create_JWT_Token(username string, password string) (string, error) {
 	// check if user exists with gorm
-	admin, err := database.GetAdmin(db, username)
+	admin, err := database.GetAdmin(username)
 	if err != nil {
 		log.Println(err.Error())
 		return "", err
@@ -53,13 +52,37 @@ func Verify_JWT_Token(tokenString string) (bool, error) {
 }
 
 func IsLogged (ctx *fiber.Ctx) bool {
-	jwt := ctx.Cookies("jwt")
-	if (jwt == "") {
+	token := ctx.Cookies("jwt")
+	if (token == "") {
 		return false
 	} else {
-		verify, err := Verify_JWT_Token(jwt)
+		verify, err := Verify_JWT_Token(token)
 		if (err != nil) {
 			return false
+		}
+		// retrieve username from token
+		// check if user exists with gorm
+		decoded, err := jwt.ParseWithClaims(token, &jwt.MapClaims{}, func(token *jwt.Token) (interface{}, error) {
+			return []byte(os.Getenv("JWT_SECRET")), nil
+		})
+		if err != nil {
+			log.Println(err)
+			return false
+		}
+		claims, ok := decoded.Claims.(*jwt.MapClaims)
+		if !ok {
+			log.Println("Error decoding claims")
+			return false
+		}
+
+		for key, value := range *claims {
+			if key == "username" {
+				_, err := database.GetAdmin(value.(string))
+				if err != nil {
+					log.Println(err.Error())
+					return false
+				}
+			}
 		}
 		return verify
 	}

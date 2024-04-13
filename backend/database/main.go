@@ -190,5 +190,6 @@ func UpdatePressedAt(team Team) error {
 		log.Println(result.Error)
 		return result.Error
 	}
+	log.Printf("Team %s pressed at %d", team.Name, team.PressedAt)
 	return nil
 }

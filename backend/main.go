@@ -1,11 +1,12 @@
 package main
 
 import (
+	"buzzer/auth"
 	"buzzer/database"
 	"buzzer/routes"
-	"buzzer/auth"
-	"log"
 	"fmt"
+	"log"
+	"time"
 
 	"github.com/gofiber/fiber/v2"
 	"github.com/joho/godotenv"
@@ -50,7 +51,7 @@ func DebugPlayground() {
 
 	database.Clear()
 
-	for i := 0; i < 20; i++ {
+	for i := 0; i < 10; i++ {
 		err := database.AddTeam(fmt.Sprintf("Team %d", i))
 		if err != nil {
 			log.Println(err)
@@ -59,4 +60,13 @@ func DebugPlayground() {
 
 	database.AddAdmin("admin", "admin")
 	database.AddAdmin("nico", "nico")
+
+	teams, err := database.GetTeams()
+	if err != nil {
+		log.Println(err)
+	}
+	for _, team := range teams {
+		database.UpdatePressedAt(team)
+		time.Sleep(1 * time.Second)
+	}
 }

@@ -3,6 +3,7 @@ package database
 import (
 	"buzzer/config"
 	"buzzer/hashing"
+	"buzzer/observer"
 	"errors"
 	"log"
 	"time"
@@ -172,24 +173,34 @@ func GetTeams() ([]Team, error) {
 	return teams, nil
 }
 
-func UpdateScore(team Team, score int) (int, error) {
+func UpdateScore(team Team, score int) error {
 	DB := GetInstance("db.sqlite").DB
-	team.Score = score
-	result := DB.Model(&team).Where("name = ?", team.Name).Update("score", score)
-	if result.Error != nil {
-		log.Println(result.Error)
-		return -1, result.Error
-	}
-	return score, nil
-}
-
-func UpdatePressedAt(team Team) error {
-	DB := GetInstance("db.sqlite").DB
-	result := DB.Model(&team).Where("name = ?", team.Name).Update("pressed_at", time.Now().Unix())
+	result := DB.Model(&team).Where("name = ?", team.Name).Update("score", team.Score + score)
 	if result.Error != nil {
 		log.Println(result.Error)
 		return result.Error
 	}
+
+	// notify observers
+	observer.SubjectInstance.Notify(map[string]interface{}{
+		"type": "scoreUpdate",
+		"data": map[string]interface{}{
+			"team": team.Name,
+			"score": team.Score + score,
+			"team_id": team.ID,
+		},
+	})
+	return nil
+}
+
+func UpdatePressedAt(team Team) error {
+	DB := GetInstance("db.sqlite").DB
+	result := DB.Model(&team).Where("name = ?", team.Name).Update("pressed_at", time.Now().UnixMilli())
+	if result.Error != nil {
+		log.Println(result.Error)
+		return result.Error
+	}
+	
 	log.Printf("Team %s pressed at %d", team.Name, team.PressedAt)
 	return nil
 }

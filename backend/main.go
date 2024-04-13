@@ -67,6 +67,6 @@ func DebugPlayground() {
 	}
 	for _, team := range teams {
 		database.UpdatePressedAt(team)
-		time.Sleep(1 * time.Second)
+		time.Sleep(12 * time.Millisecond)
 	}
 }

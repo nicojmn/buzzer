@@ -24,7 +24,7 @@
         }
         ws.onmessage = (event) => {
             const message = JSON.parse(event.data);
-            
+
             if (message.type === 'scoreUpdate') {
                 console.log('Score update received:', message.data);
                 updateScoreUI(message.data.team_id, message.data.score);
@@ -88,18 +88,19 @@
         </div>
     </div>
 
-    <div class="flex w-full">
-        <table>
+    <div class="overflow-x-auto mt-2 justify-center">
+        <table class="table">
             <thead>
                 <tr>
                     <th>Team</th>
                     <th>Score</th>
                     <th>Buzzer pressé </th>
+                    <th><button class="btn btn-outline btn-info">Trier</button></th>
                 </tr>
             </thead>
             <tbody>
                 {#each teams as team}
-                    <tr>
+                    <tr class="hover">
                         <th>{team.Name}</th>
                         <th>{team.Score}</th>
                         <th>{formatUnixTimestamp(team.PressedAt)}</th>

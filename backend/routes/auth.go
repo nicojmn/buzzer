@@ -26,7 +26,7 @@ func SetupAuthRoutes(app *fiber.App) {
 			Name:  "jwt",
 			Value: token,
 			HTTPOnly: true,
-			Secure: true,
+			Secure: false,
 		})
 
 		return c.Redirect("/admin/dashboard")

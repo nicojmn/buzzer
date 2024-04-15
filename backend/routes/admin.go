@@ -22,16 +22,13 @@ func SetupAdminRoutes(app *fiber.App) {
 		})
 
 		admin.Get("/teams", func(c *fiber.Ctx) error {
-			if !auth.IsLogged(c) {
-				return c.Redirect("/login")
-			} else {
-				teams, err := database.GetTeams()
-				if err != nil {
-					return c.SendStatus(502)
-				}
-
-				return c.JSON(teams)
+			teams, err := database.GetTeams()
+			if err != nil {
+				return c.SendStatus(502)
 			}
+
+			return c.JSON(teams)
+
 		})
 
 		admin.Get("/isAdmin", func(c *fiber.Ctx) error {
@@ -42,13 +39,11 @@ func SetupAdminRoutes(app *fiber.App) {
 			}
 		})
 
-		
-
 		admin.Get("/ws", websocket.New(func(c *websocket.Conn) {
-			observerWso := &observer.WebsocketObserver{Conn :c}
+			observerWso := &observer.WebsocketObserver{Conn: c}
 			subject := observer.SubjectInstance
 
-			subject.Attach(observerWso)	
+			subject.Attach(observerWso)
 
 			for {
 				mtype, msg, err := c.ReadMessage()

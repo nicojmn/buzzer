@@ -29,19 +29,18 @@ func main() {
 
 
 	app.Get("/", func(c *fiber.Ctx) error {
+		if (!auth.IsTeam(c)) {
+			if (!auth.IsLogged(c)) {
+				return c.Redirect("/buzzer/create-team")
+			}
+		}
+
 		return c.SendFile("index.html")
     })
-	
-	app.Get("/test", func(c *fiber.Ctx) error {
-		if (auth.IsLogged(c)) {
-			return c.SendString("You are logged")
-		} else {
-			return c.SendString("You are not logged")
-		}
-	})
 
 	routes.SetupAdminRoutes(app)
 	routes.SetupAuthRoutes(app)
+	routes.SetupBuzzerRoutes(app)
 
 	app.Listen(":8080")
 
@@ -51,7 +50,7 @@ func DebugPlayground() {
 
 	database.Clear()
 
-	for i := 0; i < 10; i++ {
+	for i := 0; i < 5; i++ {
 		err := database.AddTeam(fmt.Sprintf("Team %d", i))
 		if err != nil {
 			log.Println(err)

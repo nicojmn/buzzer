@@ -75,15 +75,68 @@ func IsLogged (ctx *fiber.Ctx) bool {
 			return false
 		}
 
-		for key, value := range *claims {
-			if key == "username" {
-				_, err := database.GetAdmin(value.(string))
-				if err != nil {
-					log.Println(err.Error())
-					return false
-				}
-			}
+		if (*claims)["username"] == nil {
+			return false
+		}
+
+		_, err = database.GetAdmin((*claims)["username"].(string))
+		if (err != nil) {
+			log.Println(err.Error())
+			return false
+		}
+
+
+		return verify
+	}
+}
+
+func IsTeam(c *fiber.Ctx) bool {
+	token := c.Cookies("jwt")
+	if token == "" {
+		return false
+	} else {
+		verify, err := Verify_JWT_Token(token)
+		if err != nil {
+			return false
+		}
+		// retrieve username from token
+		// check if user exists with gorm
+		decoded, err := jwt.ParseWithClaims(token, &jwt.MapClaims{}, func(token *jwt.Token) (interface{}, error) {
+			return []byte(os.Getenv("JWT_SECRET")), nil
+		})
+		if err != nil {
+			log.Println(err)
+			return false
+		}
+		claims, ok := decoded.Claims.(*jwt.MapClaims)
+		if !ok {
+			log.Println("Error decoding claims")
+			return false
+		}
+
+		if (*claims)["teamName"] == nil {
+			return false
+		}
+
+		_, err = database.GetTeam((*claims)["teamName"].(string))
+		if err != nil {
+			log.Println(err.Error())
+			return false
 		}
 		return verify
 	}
+}
+
+func Create_Team_JWT_Token(teamName string) (string, error) {
+	token := jwt.NewWithClaims(jwt.SigningMethodHS256, jwt.MapClaims{
+		"teamName": teamName,
+		"exp": time.Now().Add(24 * time.Hour).Unix(),
+	})
+	tokenString, err := token.SignedString([]byte(os.Getenv("JWT_SECRET")))
+	if err != nil {
+		log.Println(err)
+		return "", err
+	}
+	
+	return tokenString, nil
 }

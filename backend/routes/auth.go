@@ -2,6 +2,7 @@ package routes
 
 import (
 	"buzzer/auth"
+	"time"
 
 	"github.com/gofiber/fiber/v2"
 )
@@ -29,5 +30,15 @@ func SetupAuthRoutes(app *fiber.App) {
 		})
 
 		return c.Redirect("/admin/dashboard")
+	})
+
+	app.Get("/logout", func(c *fiber.Ctx) error {
+		c.Cookie(&fiber.Cookie{
+			Name: "jwt",
+			Value: "",
+			Expires: time.Now().Add(-time.Hour),
+		})
+
+		return c.Redirect("/login")
 	})
 }

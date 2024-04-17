@@ -51,7 +51,7 @@ func Verify_JWT_Token(tokenString string) (bool, error) {
 	return token.Valid, nil
 }
 
-func IsLogged (ctx *fiber.Ctx) bool {
+func IsLogged(ctx *fiber.Ctx) bool {
 	token := ctx.Cookies("jwt")
 	if (token == "") {
 		return false
@@ -60,6 +60,10 @@ func IsLogged (ctx *fiber.Ctx) bool {
 		if (err != nil) {
 			return false
 		}
+		if (!verify) {
+			return false
+		}
+	
 		// retrieve username from token
 		// check if user exists with gorm
 		decoded, err := jwt.ParseWithClaims(token, &jwt.MapClaims{}, func(token *jwt.Token) (interface{}, error) {
@@ -86,7 +90,7 @@ func IsLogged (ctx *fiber.Ctx) bool {
 		}
 
 
-		return verify
+		return true
 	}
 }
 
@@ -97,6 +101,9 @@ func IsTeam(c *fiber.Ctx) bool {
 	} else {
 		verify, err := Verify_JWT_Token(token)
 		if err != nil {
+			return false
+		}
+		if !verify {
 			return false
 		}
 		// retrieve username from token
@@ -123,7 +130,7 @@ func IsTeam(c *fiber.Ctx) bool {
 			log.Println(err.Error())
 			return false
 		}
-		return verify
+		return true
 	}
 }
 

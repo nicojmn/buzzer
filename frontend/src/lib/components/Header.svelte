@@ -16,7 +16,6 @@
   <meta charset="utf-8" />
   <meta name="viewport" content="width=device-width, initial-scale=1" />
   <title>N'oubliez pas les paroles !</title>
-  <link rel="icon" type="image/png" href="favicon.png">
 </svelte:head>
 
 {#if conn_state.isAdmin}

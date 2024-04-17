@@ -6,6 +6,7 @@ import (
 	"buzzer/routes"
 	"fmt"
 	"log"
+	"strings"
 	"time"
 
 	"github.com/gofiber/fiber/v2"
@@ -21,17 +22,33 @@ func main() {
 
 	app := fiber.New()
 
-	
-	app.Static("/", "../frontend/build")
-
 	// only for testing
 	DebugPlayground()
 
+	app.Use("/", func (c *fiber.Ctx) error {
+		if (strings.HasPrefix(c.Path(), "/admin")) {
+			if (!auth.IsLogged(c)) {
+				return c.Redirect("/login")
+			}
+		} else if (c.Path() == "/"){
+			if (!auth.IsTeam(c)) {
+				return c.Redirect("/buzzer/create")
+			}
+		} else if (c.Path() == "/buzzer/create") {
+			if (auth.IsTeam(c)) {
+				return c.Redirect("/")
+			}
+		}
+		return c.Next()
+	})
+
+	app.Static("/", "../frontend/build")
+	
 
 	app.Get("/", func(c *fiber.Ctx) error {
-		if (!auth.IsTeam(c)) {
+				if (!auth.IsTeam(c)) {
 			if (!auth.IsLogged(c)) {
-				return c.Redirect("/buzzer/create-team")
+				return c.Redirect("/buzzer/create")
 			}
 		}
 

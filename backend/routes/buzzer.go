@@ -2,9 +2,9 @@ package routes
 
 import (
 	"buzzer/auth"
+	"buzzer/config"
 	"buzzer/database"
 	"buzzer/observer"
-	"buzzer/config"
 	"log"
 	"strconv"
 
@@ -39,11 +39,13 @@ func SetupBuzzerRoutes(app *fiber.App) {
 		}))
 
 		buzzer.Get("/create", func(c *fiber.Ctx) error {
-			return c.SendFile("buzzer/create-team/index.html")
+			if (auth.IsTeam(c)) {
+				return c.Redirect("/")
+			}
+			return c.SendFile("buzzer/create/index.html")
 		})
 
 		buzzer.Post("/create", func(c *fiber.Ctx) error {
-			log.Println("Creating team")
 			teamName := c.FormValue("teamName")
 			if (len(teamName) > 24) {
 				return c.SendString("Team name too long, please retry")

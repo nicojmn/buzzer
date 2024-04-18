@@ -6,7 +6,6 @@ import (
 	"buzzer/database"
 	"buzzer/observer"
 	"log"
-	"strconv"
 
 	"github.com/gofiber/fiber/v2"
 	"github.com/gofiber/websocket/v2"
@@ -70,7 +69,12 @@ func SetupBuzzerRoutes(app *fiber.App) {
 				return c.SendString("Error adding team, please retry")
 			}
 
-			token, err := auth.Create_Team_JWT_Token(teamName)
+			team, err := database.GetTeam(teamName)
+			if err != nil {
+				return c.SendString("Error adding team, please retry")
+			}
+
+			token, err := auth.Create_Team_JWT_Token(teamName, team.ID)
 			if err != nil {
 				return c.SendString("Error adding team, please retry")
 			}
@@ -87,15 +91,16 @@ func SetupBuzzerRoutes(app *fiber.App) {
 
 		buzzer.Post("/press", func(c *fiber.Ctx) error {
 			if (!auth.IsTeam(c)) {
-				return c.Redirect("/buzzer/create-team")
+				return c.SendStatus(401)
 			}
 
-			teamID, err := strconv.Atoi(c.FormValue("team_id"))
+			token := c.Cookies("jwt")
+			id , err := auth.Retrieve_ID_from_JWT(token)
 			if err != nil {
-				return c.SendStatus(400)
+				return c.SendStatus(401)
 			}
 
-			team, err := database.GetTeamID(teamID)
+			team, err := database.GetTeamID(id)
 			if err != nil {
 				return c.SendStatus(502)
 			}

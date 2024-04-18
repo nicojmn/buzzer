@@ -1,5 +1,16 @@
 <script lang="ts">
     import { onMount } from "svelte";
+
+    function pressAction() {
+        try {
+            fetch("/buzzer/press", {
+                method: "POST"
+            })
+        } catch (error) {
+            console.error(error)
+        }
+    }
+
     
     onMount(async () => {
         const ws = new WebSocket("ws://localhost:8080/buzzer/ws");
@@ -17,7 +28,6 @@
             console.log("ws (buzzer): Disconnected");
         }
     })
-        
 </script>
 
 
@@ -29,7 +39,7 @@
 <div class="card w-2/3 mx-auto">
         <div class="card-body items-center text-center bg-gray-200 rounded border-2 border-gray-400">
             <h2 class="card-title">Buzzer</h2>
-            <button class="btn btn-outline btn-primary">Presser le buzzer</button>
+            <button class="btn btn-outline btn-primary" on:click={() => pressAction()}>Presser le buzzer</button>
         </div>
     </div>
 </div>

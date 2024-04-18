@@ -134,9 +134,10 @@ func IsTeam(c *fiber.Ctx) bool {
 	}
 }
 
-func Create_Team_JWT_Token(teamName string) (string, error) {
+func Create_Team_JWT_Token(teamName string, id int) (string, error) {
 	token := jwt.NewWithClaims(jwt.SigningMethodHS256, jwt.MapClaims{
 		"teamName": teamName,
+		"teamID": id,
 		"exp": time.Now().Add(24 * time.Hour).Unix(),
 	})
 	tokenString, err := token.SignedString([]byte(os.Getenv("JWT_SECRET")))
@@ -146,4 +147,30 @@ func Create_Team_JWT_Token(teamName string) (string, error) {
 	}
 	
 	return tokenString, nil
+}
+
+func Retrieve_ID_from_JWT(token string) (int, error) {
+	ok, err := Verify_JWT_Token(token)
+	if err != nil || !ok {
+		return -1, err
+	}
+	
+	decoded, err := jwt.ParseWithClaims(token, &jwt.MapClaims{}, func(token *jwt.Token) (interface{}, error) {
+		return []byte(os.Getenv("JWT_SECRET")), nil
+	})
+	if err != nil {
+		log.Println(err)
+		return -1, err
+	}
+	claims, ok := decoded.Claims.(*jwt.MapClaims)
+	if !ok {
+		log.Println("Error decoding claims")
+		return -1, nil
+	}
+
+	if (*claims)["teamID"] == nil {
+		return -1, nil
+	}
+
+	return int((*claims)["teamID"].(float64)), nil
 }

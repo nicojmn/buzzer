@@ -225,6 +225,11 @@ func LockAllTeams() error {
 		log.Println(result.Error)
 		return result.Error
 	}
+
+	//notify observers
+	observer.SubjectInstance.Notify(map[string]interface{}{
+		"type": "lockAll",
+	})
 	
 	log.Printf("All teams locked")
 	return nil
@@ -237,6 +242,11 @@ func UnlockAllTeams() error {
 		log.Println(result.Error)
 		return result.Error
 	}
+
+	//notify observers
+	observer.SubjectInstance.Notify(map[string]interface{}{
+		"type": "unlockAll",
+	})
 	
 	log.Printf("All teams unlocked")
 	return nil

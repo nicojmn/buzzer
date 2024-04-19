@@ -37,6 +37,14 @@
                 console.log('Score update received:', message.data);
                 updateScoreUI(message.data.team_id, message.data.score);
                 ws.send(JSON.stringify({ type: 'ack', data: 'Score update received!'}));
+            } else if (message.type === 'lockAll') {
+                console.log('Lock all received');
+                isLocked = true;
+                ws.send(JSON.stringify({ type: 'ack', data: 'Lock all received!'}));
+            } else if (message.type === 'unlockAll') {
+                console.log('Unlock all received');
+                isLocked = false;
+                ws.send(JSON.stringify({ type: 'ack', data: 'Unlock all received!'}));
             }
         }
         ws.onclose = () => {

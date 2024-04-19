@@ -21,8 +21,9 @@ type Admin struct {
 type Team struct {
 	ID    int    `gorm:"primaryKey;type:int;autoIncrement:true;not null;unique"`
 	Name  string `gorm:"type:string;not null;unique"`
-	Score int	 `gorm:"type:int;not null"`
-	PressedAt int `gorm:"type:int;not null"`
+	Score int	 `gorm:"type:int;not null;default:0"`
+	PressedAt int `gorm:"type:int;not null; default:0"`
+	Locked bool `gorm:"type:bool;not null;default:false"`
 }
 
 
@@ -119,7 +120,7 @@ func AddTeam(name string) (error) {
 	}
 
 	// add team to db
-	result := DB.Create(&Team{Name: name, Score: 0, PressedAt: 0})
+	result := DB.Create(&Team{Name: name, Score: 0, PressedAt: 0, Locked: false})
 	if result.Error != nil {
 		log.Printf("Database : error in creation of user, %s", result.Error)
 		return result.Error
@@ -203,4 +204,70 @@ func UpdatePressedAt(team Team) error {
 	
 	log.Printf("Team %s pressed at %d", team.Name, team.PressedAt)
 	return nil
+}
+
+func LockTeam(team Team) error {
+	DB := GetInstance("db.sqlite").DB
+	result := DB.Model(&team).Where("name = ?", team.Name).Update("locked", true)
+	if result.Error != nil {
+		log.Println(result.Error)
+		return result.Error
+	}
+	
+	log.Printf("Team %s locked", team.Name)
+	return nil
+}
+
+func LockAllTeams() error {
+	DB := GetInstance("db.sqlite").DB
+	result := DB.Model(&Team{}).Where("locked = ?", false).Update("locked", true)
+	if result.Error != nil {
+		log.Println(result.Error)
+		return result.Error
+	}
+	
+	log.Printf("All teams locked")
+	return nil
+}
+
+func UnlockAllTeams() error {
+	DB := GetInstance("db.sqlite").DB
+	result := DB.Model(&Team{}).Where("locked = ?", true).Update("locked", false)
+	if result.Error != nil {
+		log.Println(result.Error)
+		return result.Error
+	}
+	
+	log.Printf("All teams unlocked")
+	return nil
+}
+
+func LockState() (bool, error) {
+	// return true if all teams are locked, false otherwise
+	DB := GetInstance("db.sqlite").DB
+	var teams []Team
+
+	result := DB.Find(&teams)
+	if result.Error != nil {
+		log.Println(result.Error)
+		return false, result.Error
+	}
+
+	for _, team := range teams {
+		if !team.Locked {
+			return false, nil
+		}
+	}
+	return true, nil
+}
+
+func GetLockedTeams() ([]Team, error) {
+	DB := GetInstance("db.sqlite").DB
+	var teams []Team
+	result := DB.Where("locked = ?", true).Find(&teams)
+	if result.Error != nil {
+		log.Println(result.Error)
+		return teams, result.Error
+	}
+	return teams, nil
 }

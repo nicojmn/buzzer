@@ -63,6 +63,23 @@ func SetupAdminRoutes(app *fiber.App) {
 			}
 		}))
 
+		admin.Get("/lock-state", func(c *fiber.Ctx) error {
+			state, err := database.LockState()
+			if err != nil {
+				return c.SendStatus(502)
+			}
+
+			return c.JSON(fiber.Map{"locked": state})
+		})
+
+		admin.Get("/buzzer-number", func(c *fiber.Ctx) error {
+			number, err := database.GetLockedTeams()
+			if err != nil {
+				return c.SendStatus(502)
+			}
+			return c.JSON(fiber.Map{"number": len(number)})
+		})
+		
 		admin.Post("/teams/:id/increment", func(c *fiber.Ctx) error {
 			if !auth.IsLogged(c) {
 				return c.Redirect("/login")
@@ -85,6 +102,30 @@ func SetupAdminRoutes(app *fiber.App) {
 
 				return c.SendStatus(200)
 			}
+		})
+
+		admin.Post("/lock", func(c *fiber.Ctx) error {
+			if (!auth.IsLogged(c)) {
+				return c.Redirect("/login")
+			}
+			err := database.LockAllTeams()
+			if err != nil {
+				return c.SendString("Error locking teams, please retry")
+
+			}
+			return c.SendStatus(200)
+		})
+
+		admin.Post("/unlock", func(c *fiber.Ctx) error {
+			if (!auth.IsLogged(c)) {
+				return c.Redirect("/login")
+			}
+			err := database.UnlockAllTeams()
+			if err != nil {
+				return c.SendString("Error unlocking teams, please retry")
+
+			}
+			return c.SendStatus(200)
 		})
 	})
 }

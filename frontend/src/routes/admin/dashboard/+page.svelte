@@ -18,7 +18,7 @@
         buzzer_number = await numberLocked()
     })
     $: if (teams.length > 0) {
-        sortedTeams = teams.sort((a: any, b: any) => b.PressedAt - a.PressedAt);
+        sortedTeams = teams.sort((a: any, b: any) => a.PressedAt - b.PressedAt);
         podium = teams.sort((a: any, b: any) => b.Score - a.Score).slice(0, 3);
     }
 
@@ -209,7 +209,6 @@
                     <th>Team</th>
                     <th>Score</th>
                     <th>Buzzer pressé </th>
-                    <th><button class="btn btn-outline btn-info">Trier</button></th>
                 </tr>
             </thead>
             <tbody>

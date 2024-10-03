@@ -106,6 +106,7 @@ func SetupBuzzerRoutes(app *fiber.App) {
 			}
 
 			database.UpdatePressedAt(team)
+			database.LockTeam(team)
 			return c.SendStatus(200)
 		})
 	})

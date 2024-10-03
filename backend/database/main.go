@@ -196,7 +196,7 @@ func UpdateScore(team Team, score int) error {
 
 func UpdatePressedAt(team Team) error {
 	DB := GetInstance("db.sqlite").DB
-	result := DB.Model(&team).Where("name = ?", team.Name).Update("pressed_at", time.Now().UnixMilli())
+	result := DB.Model(&team).Where("name = ?", team.Name).Where("locked = 0").Update("pressed_at", time.Now().UnixMilli())
 	if result.Error != nil {
 		log.Println(result.Error)
 		return result.Error

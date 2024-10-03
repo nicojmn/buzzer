@@ -33,18 +33,36 @@
         ws.onmessage = (event) => {
             const message = JSON.parse(event.data);
 
-            if (message.type === 'scoreUpdate') {
-                console.log('Score update received:', message.data);
-                updateScoreUI(message.data.team_id, message.data.score);
-                ws.send(JSON.stringify({ type: 'ack', data: 'Score update received!'}));
-            } else if (message.type === 'lockAll') {
-                console.log('Lock all received');
-                isLocked = true;
-                ws.send(JSON.stringify({ type: 'ack', data: 'Lock all received!'}));
-            } else if (message.type === 'unlockAll') {
-                console.log('Unlock all received');
-                isLocked = false;
-                ws.send(JSON.stringify({ type: 'ack', data: 'Unlock all received!'}));
+            // if (message.type === 'scoreUpdate') {
+            //     console.log('Score update received:', message.data);
+            //     updateScoreUI(message.data.team_id, message.data.score);
+            //     ws.send(JSON.stringify({ type: 'ack', data: 'Score update received!'}));
+            // } else if (message.type === 'lockAll') {
+            //     console.log('Lock all received');
+            //     isLocked = true;
+            //     ws.send(JSON.stringify({ type: 'ack', data: 'Lock all received!'}));
+            // } else if (message.type === 'unlockAll') {
+            //     console.log('Unlock all received');
+            //     isLocked = false;
+            //     ws.send(JSON.stringify({ type: 'ack', data: 'Unlock all received!'}));
+            // }
+
+            switch (message.type) {
+                case 'scoreUpdate':
+                    console.log('Score update received:', message.data);
+                    updateScoreUI(message.data.team_id, message.data.score);
+                    break;
+                case 'lockAll':
+                    console.log('Lock all received');
+                    isLocked = true;
+                    break;
+                case 'unlockAll':
+                    console.log('Unlock all received');
+                    isLocked = false;
+                    break;
+                default:
+                    // do nothing
+                    break;
             }
         }
         ws.onclose = () => {
@@ -86,7 +104,7 @@
                 return
             }
             let data = await response.json()
-            isLocked = data.state
+            isLocked = data.locked
         } catch (error) {
             alert("Erreur lors de la récupération de l'état des buzzer, réessayez")
         }
